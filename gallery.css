@@ -1,0 +1,42 @@
+body {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.gallery {
+  position: relative;
+  overflow: hidden;
+}
+
+.gallery__buttons {
+  position: absolute;
+  z-index: 3;
+  bottom: 6%;
+  width: 100%;
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+}
+
+.gallery__img {
+  -webkit-transition: all 0.3s ease-in-out;
+  -moz-transition: all 0.3s ease-in-out;
+  -ms-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+}
+
+.gallery__range {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  cursor: grabbing;
+  opacity: 0;
+}
+
+button {
+  cursor: pointer;
+}
