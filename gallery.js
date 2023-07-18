@@ -24,7 +24,7 @@ let intervalId;
 let multipler = 1;
 
 function changeImg(i) {
-  galleryImg.src = `/images/small/IMG_${i}.jpg`;
+  galleryImg.src = `images/small/IMG_${i}.jpg`;
 }
 
 function rotateLeft() {
@@ -68,14 +68,14 @@ function rotateDown() {
 function play() {
   if (!isPlaying) {
     isPlaying = true;
-    playIcon.src = "/images/buttons/pause.svg";
+    playIcon.src = "images/buttons/pause.svg";
     playIcon.title = "zatrzymaj automatyczne obracanie";
     intervalId = setInterval(() => {
       rotateRight();
     }, 200);
   } else {
     isPlaying = false;
-    playIcon.src = "/images/buttons/play.svg";
+    playIcon.src = "images/buttons/play.svg";
     playIcon.title = "uruchom automatyczne obracanie";
     clearInterval(intervalId);
   }
