@@ -12,7 +12,7 @@ let zoomValue = 1;
 
 let xChange = 0; // when it is below zero user have dragged to the left
 
-function changeImg(i) {
+function changeImg() {
   galleryImg.src = `images/lowres/jelonek-glowa-row-0${row}_${
     i < 10 ? "00" : "0"
   }${i}.jpg`;
@@ -21,23 +21,23 @@ function changeImg(i) {
 function rotateLeft(value = 1) {
   i -= value;
   if (i <= 0) i = 29;
-  changeImg(i);
+  changeImg();
 }
 
 function rotateRight(value = 1) {
   i += value;
   if (i >= 30) i = 1;
-  changeImg(i);
+  changeImg();
 }
 
 function rotateUp() {
   if (row < 3) row++;
-  changeImg(i);
+  changeImg();
 }
 
 function rotateDown() {
   if (row > 1) row--;
-  changeImg(i);
+  changeImg();
 }
 
 function play() {
