@@ -75,7 +75,7 @@ galleryImg.addEventListener("mousedown", function (e) {
   function rotateImg(e) {
     const xChange = e.clientX - x;
     // limit changing img
-    if (xChange % 6 === 0) {
+    if (xChange % 2 === 0) {
       const isToTheLeft = xChange < 0 ? true : false;
       if (isToTheLeft) rotateLeft();
       else rotateRight();
