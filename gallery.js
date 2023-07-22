@@ -96,7 +96,11 @@ galleryImg.addEventListener("mousedown", function (e) {
 
   galleryImg.addEventListener("mousemove", rotateImg);
 
-  window.addEventListener("mouseup", function () {
+  galleryImg.addEventListener("mouseup", function () {
+    galleryImg.removeEventListener("mousemove", rotateImg);
+  });
+
+  galleryImg.addEventListener("mouseleave", function () {
     galleryImg.removeEventListener("mousemove", rotateImg);
   });
 });
