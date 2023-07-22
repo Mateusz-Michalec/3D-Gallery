@@ -10,7 +10,7 @@ let intervalId;
 
 let zoomValue = 1;
 
-let xChange = 0; // when it is below zero user have dragged to the left
+let xChange = 0; // when it is below zero, the user dragged to the left
 
 function changeImg() {
   galleryImg.src = `images/lowres/jelonek-glowa-row-0${row}_${
@@ -18,57 +18,69 @@ function changeImg() {
   }${i}.jpg`;
 }
 
-function rotateLeft(value = 1) {
-  i -= value;
-  if (i <= 0) i = 29;
+function rotateLeft() {
+  i--;
+  if (i === 0) i = 29;
   changeImg();
 }
 
-function rotateRight(value = 1) {
-  i += value;
-  if (i >= 30) i = 1;
+function rotateRight() {
+  i++;
+  if (i > 29) i = 1;
   changeImg();
 }
 
 function rotateUp() {
-  if (row < 3) row++;
-  changeImg();
+  if (row < 3) {
+    row++;
+    changeImg();
+  } else return;
 }
 
 function rotateDown() {
-  if (row > 1) row--;
-  changeImg();
+  if (row > 1) {
+    row--;
+    changeImg();
+  } else return;
+}
+
+function startPlaying() {
+  isPlaying = true;
+  playIcon.src = "images/buttons/pause.svg";
+  playIcon.title = "zatrzymaj automatyczne obracanie";
+  intervalId = setInterval(() => {
+    rotateRight();
+  }, 150);
+}
+
+function stopPlaying() {
+  isPlaying = false;
+  playIcon.src = "images/buttons/play.svg";
+  playIcon.title = "uruchom automatyczne obracanie";
+  clearInterval(intervalId);
 }
 
 function play() {
-  if (!isPlaying) {
-    isPlaying = true;
-    playIcon.src = "images/buttons/pause.svg";
-    playIcon.title = "zatrzymaj automatyczne obracanie";
-    intervalId = setInterval(() => {
-      rotateRight();
-    }, 150);
-  } else {
-    isPlaying = false;
-    playIcon.src = "images/buttons/play.svg";
-    playIcon.title = "uruchom automatyczne obracanie";
-    clearInterval(intervalId);
-  }
+  if (isPlaying === false) startPlaying();
+  else stopPlaying();
 }
 
 function zoomIn() {
-  if (zoomValue < 2.5) zoomValue += 0.25;
-  else return;
-  galleryImg.style.webkitTransform = `scale(${zoomValue})`;
+  if (zoomValue < 2.5) {
+    zoomValue += 0.25;
+    galleryImg.style.webkitTransform = `scale(${zoomValue})`;
+  } else return;
 }
 
 function zoomOut() {
-  if (zoomValue > 1) zoomValue -= 0.25;
-  else return;
-  galleryImg.style.webkitTransform = `scale(${zoomValue})`;
+  if (zoomValue > 1) {
+    zoomValue -= 0.25;
+    galleryImg.style.webkitTransform = `scale(${zoomValue})`;
+  } else return;
 }
 
 galleryImg.addEventListener("mousedown", function (e) {
+  if (isPlaying) stopPlaying();
   e.preventDefault();
   const x = e.clientX;
 
@@ -84,13 +96,13 @@ galleryImg.addEventListener("mousedown", function (e) {
 
   galleryImg.addEventListener("mousemove", rotateImg);
 
-  galleryImg.addEventListener("mouseup", function () {
+  window.addEventListener("mouseup", function () {
     galleryImg.removeEventListener("mousemove", rotateImg);
   });
 });
 
-document.getElementById("left").addEventListener("click", () => rotateLeft());
-document.getElementById("right").addEventListener("click", () => rotateRight());
+document.getElementById("left").addEventListener("click", rotateLeft);
+document.getElementById("right").addEventListener("click", rotateRight);
 document.getElementById("up").addEventListener("click", rotateUp);
 document.getElementById("down").addEventListener("click", rotateDown);
 document.getElementById("zoomIn").addEventListener("click", zoomIn);
