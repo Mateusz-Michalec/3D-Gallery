@@ -10,6 +10,7 @@ let intervalId;
 
 let zoomValue = 1;
 
+let xStart;
 let xChange = 0; // when it is below zero, the user dragged to the left
 
 function changeImg() {
@@ -79,30 +80,59 @@ function zoomOut() {
   } else return;
 }
 
+galleryImg.addEventListener("dragstart", function (e) {
+  e.preventDefault();
+});
+
+function handleImgRotate() {
+  // limit changing img
+  if (xChange % 2 === 0) {
+    const isToTheLeft = xChange < 0 ? true : false;
+    if (isToTheLeft) rotateLeft();
+    else rotateRight();
+  } else return;
+}
+
+// Mouse events
+
+function rotateImgOnMouse(e) {
+  xChange = e.clientX - xStart;
+  handleImgRotate();
+}
+
 galleryImg.addEventListener("mousedown", function (e) {
   if (isPlaying) stopPlaying();
-  e.preventDefault();
-  const x = e.clientX;
+  xStart = e.clientX;
+  galleryImg.addEventListener("mousemove", rotateImgOnMouse);
+});
 
-  function rotateImg(e) {
-    const xChange = e.clientX - x;
-    // limit changing img
-    if (xChange % 2 === 0) {
-      const isToTheLeft = xChange < 0 ? true : false;
-      if (isToTheLeft) rotateLeft();
-      else rotateRight();
-    } else return;
-  }
+galleryImg.addEventListener("mouseup", function () {
+  galleryImg.removeEventListener("mousemove", rotateImgOnMouse);
+});
 
-  galleryImg.addEventListener("mousemove", rotateImg);
+galleryImg.addEventListener("mouseleave", function () {
+  galleryImg.removeEventListener("mousemove", rotateImgOnMouse);
+});
 
-  galleryImg.addEventListener("mouseup", function () {
-    galleryImg.removeEventListener("mousemove", rotateImg);
-  });
+// Touch events
 
-  galleryImg.addEventListener("mouseleave", function () {
-    galleryImg.removeEventListener("mousemove", rotateImg);
-  });
+function rotateImgOnTouch(e) {
+  xChange = e.touches[0].clientX - xStart;
+  handleImgRotate();
+}
+
+galleryImg.addEventListener("touchstart", function (e) {
+  if (isPlaying) stopPlaying();
+  xStart = e.touches[0].clientX;
+  galleryImg.addEventListener("touchmove", rotateImgOnTouch);
+});
+
+galleryImg.addEventListener("touchend", function () {
+  galleryImg.removeEventListener("touchmove", rotateImgOnTouch);
+});
+
+galleryImg.addEventListener("touchcancel", function () {
+  galleryImg.removeEventListener("touchmove", rotateImgOnTouch);
 });
 
 document.getElementById("left").addEventListener("click", rotateLeft);
