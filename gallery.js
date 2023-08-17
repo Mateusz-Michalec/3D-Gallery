@@ -1,5 +1,6 @@
 const playIcon = document.querySelector("#play img");
-const galleryImg = document.querySelector(".gallery__img");
+const img = document.querySelector(".gallery__img");
+const imgWrapper = document.querySelector(".gallery__img-wrapper");
 
 let i = 1; // 001 - 029
 let row = 1; // 01 - 03
@@ -8,13 +9,15 @@ let row = 1; // 01 - 03
 let isPlaying = false;
 let intervalId;
 
-let zoomValue = 1;
+// zoom
+let zoomValue = 1.5;
+let isZooming = false;
 
 let xStart;
 let xChange = 0; // when it is below zero, the user dragged to the left
 
 function changeImg() {
-  galleryImg.src = `images/lowres/jelonek-glowa-row-0${row}_${
+  img.src = `images/lowres/jelonek-glowa-row-0${row}_${
     i < 10 ? "00" : "0"
   }${i}.jpg`;
 }
@@ -66,21 +69,67 @@ function play() {
   else stopPlaying();
 }
 
+function centerImage() {
+  img.style.transformOrigin = `50% 50%`;
+}
+
+function scaleImage() {
+  img.style.transform = `scale(${zoomValue})`;
+}
+
+function zooming(e) {
+  const rect = imgWrapper.getBoundingClientRect();
+
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  img.style.transformOrigin = `${x}px ${y}px`;
+}
+
+function mobileZooming(e) {
+  e.preventDefault();
+  const rect = imgWrapper.getBoundingClientRect();
+
+  const x = e.touches[0].clientX - rect.left;
+  const y = e.touches[0].clientY - rect.top;
+
+  if (x > 0 && x < rect.width && y > 0 && y < rect.height)
+    img.style.transformOrigin = `${x}px ${y}px`;
+}
+
 function zoomIn() {
-  if (zoomValue < 2.5) {
-    zoomValue += 0.25;
-    galleryImg.style.webkitTransform = `scale(${zoomValue})`;
-  } else return;
+  if (!isZooming) {
+    isZooming = true;
+    imgWrapper.addEventListener("mousemove", zooming);
+    imgWrapper.addEventListener("mouseleave", centerImage);
+    imgWrapper.addEventListener(
+      "touchmove",
+      (e) => {
+        mobileZooming(e);
+      },
+      { passive: false }
+    );
+    scaleImage();
+  } else if (isZooming && zoomValue < 2.5) {
+    zoomValue += 0.5;
+    scaleImage();
+  }
 }
 
 function zoomOut() {
-  if (zoomValue > 1) {
-    zoomValue -= 0.25;
-    galleryImg.style.webkitTransform = `scale(${zoomValue})`;
-  } else return;
+  if (isZooming && zoomValue === 1.5) {
+    isZooming = false;
+    img.style.transform = "none";
+    imgWrapper.removeEventListener("mousemove", zooming);
+    imgWrapper.removeEventListener("mouseleave", centerImage);
+    imgWrapper.removeEventListener("touchmove", mobileZooming);
+  } else if (isZooming && zoomValue > 1.5) {
+    zoomValue -= 0.5;
+    scaleImage();
+  }
 }
 
-galleryImg.addEventListener("dragstart", function (e) {
+img.addEventListener("dragstart", function (e) {
   e.preventDefault();
 });
 
@@ -100,39 +149,39 @@ function rotateImgOnMouse(e) {
   handleImgRotate();
 }
 
-galleryImg.addEventListener("mousedown", function (e) {
+img.addEventListener("mousedown", function (e) {
   if (isPlaying) stopPlaying();
   xStart = e.clientX;
-  galleryImg.addEventListener("mousemove", rotateImgOnMouse);
+  img.addEventListener("mousemove", rotateImgOnMouse);
 });
 
-galleryImg.addEventListener("mouseup", function () {
-  galleryImg.removeEventListener("mousemove", rotateImgOnMouse);
+img.addEventListener("mouseup", function () {
+  img.removeEventListener("mousemove", rotateImgOnMouse);
 });
 
-galleryImg.addEventListener("mouseleave", function () {
-  galleryImg.removeEventListener("mousemove", rotateImgOnMouse);
+img.addEventListener("mouseleave", function () {
+  img.removeEventListener("mousemove", rotateImgOnMouse);
 });
 
-// Touch events
+// Touch events (mobile)
 
 function rotateImgOnTouch(e) {
   xChange = e.touches[0].clientX - xStart;
   handleImgRotate();
 }
 
-galleryImg.addEventListener("touchstart", function (e) {
+img.addEventListener("touchstart", function (e) {
   if (isPlaying) stopPlaying();
   xStart = e.touches[0].clientX;
-  galleryImg.addEventListener("touchmove", rotateImgOnTouch);
+  if (!isZooming) img.addEventListener("touchmove", rotateImgOnTouch);
 });
 
-galleryImg.addEventListener("touchend", function () {
-  galleryImg.removeEventListener("touchmove", rotateImgOnTouch);
+img.addEventListener("touchend", function () {
+  img.removeEventListener("touchmove", rotateImgOnTouch);
 });
 
-galleryImg.addEventListener("touchcancel", function () {
-  galleryImg.removeEventListener("touchmove", rotateImgOnTouch);
+img.addEventListener("touchcancel", function () {
+  img.removeEventListener("touchmove", rotateImgOnTouch);
 });
 
 document.getElementById("left").addEventListener("click", rotateLeft);
