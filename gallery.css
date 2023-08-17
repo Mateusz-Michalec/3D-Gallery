@@ -6,27 +6,30 @@ body {
 }
 
 .gallery {
-  position: relative;
+  max-width: 100%;
+}
+
+/* Image */
+
+.gallery__img-wrapper {
   overflow: hidden;
 }
 
-.gallery__buttons {
-  position: absolute;
-  z-index: 3;
-  bottom: 6%;
-  width: 100%;
-  display: flex;
-  gap: 2rem;
-  justify-content: center;
+.gallery__img {
+  max-width: 100%;
+  cursor: grabbing;
+  transform-origin: center;
 }
 
-.gallery__img {
-  cursor: grabbing;
-  -webkit-transition: all 0.3s ease-in-out;
-  -moz-transition: all 0.3s ease-in-out;
-  -ms-transition: all 0.3s ease-in-out;
-  -o-transition: all 0.3s ease-in-out;
-  transition: all 0.3s ease-in-out;
+/* Buttons */
+
+.gallery__buttons {
+  max-width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  justify-content: center;
+  margin-top: 1rem;
 }
 
 button {
