@@ -69,6 +69,18 @@ function play() {
   else stopPlaying();
 }
 
+// Actions for left and right btns
+
+function handleRotateLeft() {
+  if (isPlaying) stopPlaying();
+  rotateLeft();
+}
+
+function handleRotateRight() {
+  if (isPlaying) stopPlaying();
+  rotateRight();
+}
+
 function centerImage() {
   img.style.transformOrigin = `50% 50%`;
 }
@@ -95,6 +107,7 @@ function mobileZooming(e) {
 
   if (x > 0 && x < rect.width && y > 0 && y < rect.height)
     img.style.transformOrigin = `${x}px ${y}px`;
+  else centerImage();
 }
 
 function zoomIn() {
@@ -117,15 +130,12 @@ function zoomIn() {
 }
 
 function zoomOut() {
-  if (isZooming && zoomValue === 1.5) {
+  if (isZooming) {
     isZooming = false;
     img.style.transform = "none";
     imgWrapper.removeEventListener("mousemove", zooming);
     imgWrapper.removeEventListener("mouseleave", centerImage);
     imgWrapper.removeEventListener("touchmove", mobileZooming);
-  } else if (isZooming && zoomValue > 1.5) {
-    zoomValue -= 0.5;
-    scaleImage();
   }
 }
 
@@ -171,7 +181,7 @@ function rotateImgOnTouch(e) {
 }
 
 img.addEventListener("touchstart", function (e) {
-  if (isPlaying) stopPlaying();
+  //if (isPlaying) stopPlaying();
   xStart = e.touches[0].clientX;
   if (!isZooming) img.addEventListener("touchmove", rotateImgOnTouch);
 });
@@ -184,8 +194,8 @@ img.addEventListener("touchcancel", function () {
   img.removeEventListener("touchmove", rotateImgOnTouch);
 });
 
-document.getElementById("left").addEventListener("click", rotateLeft);
-document.getElementById("right").addEventListener("click", rotateRight);
+document.getElementById("left").addEventListener("click", handleRotateLeft);
+document.getElementById("right").addEventListener("click", handleRotateRight);
 document.getElementById("up").addEventListener("click", rotateUp);
 document.getElementById("down").addEventListener("click", rotateDown);
 document.getElementById("zoomIn").addEventListener("click", zoomIn);
