@@ -133,6 +133,7 @@ function zoomOut() {
   if (isZooming) {
     isZooming = false;
     img.style.transform = "none";
+    zoomValue = 1.5;
     imgWrapper.removeEventListener("mousemove", zooming);
     imgWrapper.removeEventListener("mouseleave", centerImage);
     imgWrapper.removeEventListener("touchmove", mobileZooming);
