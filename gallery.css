@@ -1,37 +1,42 @@
 body {
-  display: flex;
-  min-height: 100vh;
-  align-items: center;
-  justify-content: center;
+	display: flex;
+	min-height: 100vh;
+	align-items: center;
+	justify-content: center;
 }
 
 .gallery {
-  max-width: 100%;
+	position: relative;
+	max-width: 100%;
 }
 
 /* Image */
 
 .gallery__img-wrapper {
-  overflow: hidden;
+	overflow: hidden;
 }
 
 .gallery__img {
-  max-width: 100%;
-  cursor: grabbing;
-  transform-origin: center;
+	max-width: 100%;
+	cursor: grabbing;
+	transform-origin: center;
 }
 
-/* Buttons */
-
 .gallery__buttons {
-  max-width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2.5rem;
-  justify-content: center;
-  margin-top: 1rem;
+	width: 100%;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	padding: 7px 0;
+	background-color: transparent;
 }
 
 button {
-  cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
 }
