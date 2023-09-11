@@ -197,20 +197,37 @@ img.addEventListener('touchcancel', function () {
 	img.removeEventListener('touchmove', rotateImgOnTouch)
 })
 
-function toggleFullscreen() {
-	if (!document.fullscreenElement) {
-		gallery.requestFullscreen().catch(err => {
-			alert(`Nie można przejść w tryb pełnoekranowy: ${err.message}`)
-		})
+function handleFullscreenChange() {
+	if (document.fullscreenElement) {
+		isFullScreen = true
+		fullScreenIcon.src = 'images/buttons/fullscreenoff.svg'
+		fullScreenIcon.title = 'wyłącz tryb pełnoekranowy'
 	} else {
-		document.exitFullscreen()
+		isFullScreen = false
+		fullScreenIcon.src = 'images/buttons/fullscreenon.svg'
+		fullScreenIcon.title = 'włącz tryb pełnoekranowy'
 	}
-	isFullScreen = !isFullScreen
-	fullScreenIcon.src = `images/buttons/${isFullScreen ? 'fullscreenoff' : 'fullscreenon'}.svg`
-	fullScreenIcon.title = `${isFullScreen ? 'wyłącz' : 'włącz'} tryb pełnego ekranu`
 	changeImg()
 }
 
+function enterFullscreen() {
+	gallery.requestFullscreen().catch(err => {
+		alert(`Nie można przejść w tryb pełnoekranowy: ${err.message}`)
+	})
+}
+function exitFullscreen() {
+	document.exitFullscreen()
+}
+
+document.getElementById('fullscreen').addEventListener('click', () => {
+	if (!document.fullscreenElement) {
+		enterFullscreen()
+	} else {
+		exitFullscreen()
+	}
+})
+
+document.addEventListener('fullscreenchange', handleFullscreenChange)
 document.getElementById('left').addEventListener('click', handleRotateLeft)
 document.getElementById('right').addEventListener('click', handleRotateRight)
 document.getElementById('up').addEventListener('click', rotateUp)
