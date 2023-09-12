@@ -15,11 +15,21 @@ let intervalId;
 let zoomValue = 1.5;
 let isZooming = false;
 
-let xStart;
+let xStart = 0,
+  yStart = 0;
 let xChange = 0; // when it is below zero, the user dragged to the left
+
+let zoomedImgHeight, zoomedImgWidth;
+let maxPosX, maxPosY;
+
+let currentImgPosX = 0,
+  currentImgPosY = 0;
 
 //fullscreen variables
 let isFullScreen = false;
+
+// rotation limiter
+const THRESHOLD_DISTANCE = 10;
 
 function changeImg() {
   img.src = `images/${
@@ -86,6 +96,8 @@ function handleRotateRight() {
   rotateRight();
 }
 
+// Zooming
+
 function centerImage() {
   img.style.transformOrigin = `50% 50%`;
 }
@@ -103,16 +115,48 @@ function zooming(e) {
   img.style.transformOrigin = `${x}px ${y}px`;
 }
 
-function mobileZooming(e) {
-  e.preventDefault();
+function setMobileZoomCords() {
   const rect = imgWrapper.getBoundingClientRect();
 
-  const x = e.touches[0].clientX - rect.left;
-  const y = e.touches[0].clientY - rect.top;
+  zoomedImgWidth = rect.width * zoomValue;
+  zoomedImgHeight = rect.height * zoomValue;
 
-  if (x > 0 && x < rect.width && y > 0 && y < rect.height)
-    img.style.transformOrigin = `${x}px ${y}px`;
-  else centerImage();
+  maxPosX = Math.abs((rect.width - zoomedImgWidth) / 2);
+  maxPosY = Math.abs((rect.height - zoomedImgHeight) / 2);
+}
+
+function getInitTouchCords(e) {
+  xStart = e.touches[0].clientX;
+  yStart = e.touches[0].clientY;
+}
+
+function mobileZooming(e) {
+  e.preventDefault();
+
+  const deltaX = e.touches[0].clientX - xStart;
+  const deltaY = e.touches[0].clientY - yStart;
+
+  let newPosX = currentImgPosX + deltaX;
+  let newPosY = currentImgPosY + deltaY;
+
+  if (Math.abs(newPosX) > maxPosX) {
+    if (newPosX > 0) newPosX = maxPosX;
+    else newPosX = maxPosX * -1;
+    currentImgPosX = newPosX;
+  }
+
+  if (Math.abs(newPosY) > maxPosY) {
+    if (newPosY > 0) newPosY = maxPosY;
+    else newPosY = maxPosY * -1;
+    currentImgPosY = newPosY;
+  }
+
+  img.style.transform = `translate(${newPosX}px, ${newPosY}px) scale(${zoomValue})`;
+}
+
+function updateImgPosition(e) {
+  currentImgPosX += e.changedTouches[0].clientX - xStart;
+  currentImgPosY += e.changedTouches[0].clientY - yStart;
 }
 
 function zoomIn() {
@@ -120,17 +164,17 @@ function zoomIn() {
     isZooming = true;
     imgWrapper.addEventListener("mousemove", zooming);
     imgWrapper.addEventListener("mouseleave", centerImage);
-    imgWrapper.addEventListener(
-      "touchmove",
-      (e) => {
-        mobileZooming(e);
-      },
-      { passive: false }
-    );
+
+    // mobile
+    imgWrapper.addEventListener("touchstart", getInitTouchCords);
+    imgWrapper.addEventListener("touchmove", mobileZooming);
+    imgWrapper.addEventListener("touchend", updateImgPosition);
     scaleImage();
+    setMobileZoomCords();
   } else if (isZooming && zoomValue < 2.5) {
     zoomValue += 0.5;
     scaleImage();
+    setMobileZoomCords();
   }
 }
 
@@ -159,20 +203,26 @@ function handleImgRotate() {
 
 function rotateImgOnMouse(e) {
   xChange = e.clientX - xStart;
-  handleImgRotate();
+  if (Math.abs(xChange) >= THRESHOLD_DISTANCE) {
+    handleImgRotate(e);
+    xStart = e.clientX;
+  }
 }
 
 img.addEventListener("mousedown", function (e) {
+  img.style.cursor = "grabbing";
   if (isPlaying) stopPlaying();
   xStart = e.clientX;
   img.addEventListener("mousemove", rotateImgOnMouse);
 });
 
 img.addEventListener("mouseup", function () {
+  img.style.cursor = "grab";
   img.removeEventListener("mousemove", rotateImgOnMouse);
 });
 
 img.addEventListener("mouseleave", function () {
+  img.style.cursor = "grab";
   img.removeEventListener("mousemove", rotateImgOnMouse);
 });
 
@@ -180,11 +230,13 @@ img.addEventListener("mouseleave", function () {
 
 function rotateImgOnTouch(e) {
   xChange = e.touches[0].clientX - xStart;
-  handleImgRotate();
+  if (Math.abs(xChange) >= THRESHOLD_DISTANCE) {
+    handleImgRotate(e);
+    xStart = e.touches[0].clientX;
+  }
 }
 
 img.addEventListener("touchstart", function (e) {
-  //if (isPlaying) stopPlaying();
   xStart = e.touches[0].clientX;
   if (!isZooming) img.addEventListener("touchmove", rotateImgOnTouch);
 });
