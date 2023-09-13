@@ -185,7 +185,11 @@ function zoomOut() {
     zoomValue = 1.5;
     imgWrapper.removeEventListener("mousemove", zooming);
     imgWrapper.removeEventListener("mouseleave", centerImage);
+
+    //mobile
+    imgWrapper.removeEventListener("touchstart", getInitTouchCords);
     imgWrapper.removeEventListener("touchmove", mobileZooming);
+    imgWrapper.removeEventListener("touchend", updateImgPosition);
   }
 }
 
