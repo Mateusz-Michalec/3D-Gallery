@@ -17,10 +17,8 @@ let isZooming = false;
 
 let xStart = 0,
   yStart = 0;
-let xChange = 0; // when it is below zero, the user dragged to the left
 
-let zoomedImgHeight, zoomedImgWidth;
-let maxPosX, maxPosY;
+let maxDx, maxDy;
 
 let currentImgPosX = 0,
   currentImgPosY = 0;
@@ -30,6 +28,7 @@ let isFullScreen = false;
 
 // rotation limiter
 const THRESHOLD_DISTANCE = 10;
+let xChange = 0; // when it is below zero, the user dragged to the left
 
 function changeImg() {
   img.src = `images/${
@@ -118,36 +117,38 @@ function zooming(e) {
 function setMobileZoomCords() {
   const rect = imgWrapper.getBoundingClientRect();
 
-  zoomedImgWidth = rect.width * zoomValue;
-  zoomedImgHeight = rect.height * zoomValue;
+  const zoomedImgWidth = rect.width * zoomValue;
+  const zoomedImgHeight = rect.height * zoomValue;
 
-  maxPosX = Math.abs((rect.width - zoomedImgWidth) / 2);
-  maxPosY = Math.abs((rect.height - zoomedImgHeight) / 2);
+  maxDx = (zoomedImgWidth - rect.width) / 2 - 10;
+  maxDy = (zoomedImgHeight - rect.height) / 2 - 10;
 }
 
 function getInitTouchCords(e) {
+  imgWrapper.removeEventListener("mousemove", zooming);
   xStart = e.touches[0].clientX;
   yStart = e.touches[0].clientY;
+  updateImgPosition(e);
 }
 
 function mobileZooming(e) {
   e.preventDefault();
 
-  const deltaX = e.touches[0].clientX - xStart;
-  const deltaY = e.touches[0].clientY - yStart;
+  const dx = e.touches[0].clientX - xStart;
+  const dy = e.touches[0].clientY - yStart;
 
-  let newPosX = currentImgPosX + deltaX;
-  let newPosY = currentImgPosY + deltaY;
+  let newPosX = currentImgPosX + dx;
+  let newPosY = currentImgPosY + dy;
 
-  if (Math.abs(newPosX) > maxPosX) {
-    if (newPosX > 0) newPosX = maxPosX;
-    else newPosX = maxPosX * -1;
+  if (Math.abs(newPosX) > maxDx) {
+    if (newPosX > 0) newPosX = maxDx;
+    else newPosX = maxDx * -1;
     currentImgPosX = newPosX;
   }
 
-  if (Math.abs(newPosY) > maxPosY) {
-    if (newPosY > 0) newPosY = maxPosY;
-    else newPosY = maxPosY * -1;
+  if (Math.abs(newPosY) > maxDy) {
+    if (newPosY > 0) newPosY = maxDy;
+    else newPosY = maxDy * -1;
     currentImgPosY = newPosY;
   }
 
