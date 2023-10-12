@@ -1,17 +1,17 @@
 body {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   min-height: 100vh;
   align-items: center;
-  justify-content: center;
+  justify-items: center;
 }
 
 .gallery {
   display: flex;
+  gap: 0.5rem;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
-  max-width: 100%;
-  background-color: #ececef;
+  width: 500px;
 }
 
 /* Image */
@@ -32,7 +32,6 @@ body {
   align-items: center;
   width: 100%;
   padding: 10px 0;
-  background-color: #efefef;
 }
 
 button {

@@ -1,47 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="./gallery.css" />
+    <script src="./gallery.js" defer></script>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Document</title>
-  <link rel="stylesheet" type="text/css" href="./gallery.css" />
-  <script src="./gallery.js" defer></script>
-</head>
-
-<body>
-  <div class="gallery">
-    <div class="gallery__img-wrapper">
-      <img class="gallery__img" src="images/lowres/jelonek-glowa-row-01_001.jpg" alt="Jeleń" />
+  <body>
+    <div class="gallery" data-artwork="jelonek-glowa">
+      <div class="gallery__img-wrapper">
+        <img class="gallery__img" />
+      </div>
+      <div class="gallery__buttons">
+        <button class="gallery__left-btn">
+          <img
+            src="images/buttons/left.svg"
+            alt="obróć w lewo"
+            title="obróć w lewo"
+          />
+        </button>
+        <button class="gallery__right-btn">
+          <img
+            src="images/buttons/right.svg"
+            alt="obróć w prawo"
+            title="obróć w prawo"
+          />
+        </button>
+        <button class="gallery__up-btn">
+          <img
+            src="images/buttons/up.svg"
+            alt="obróć do góry"
+            title="obróć do góry"
+          />
+        </button>
+        <button class="gallery__down-btn">
+          <img
+            src="images/buttons/down.svg"
+            alt="obróć w dół"
+            title="obróć w dół"
+          />
+        </button>
+        <button class="gallery__zoom-in-btn">
+          <img
+            src="images/buttons/zoomin.svg"
+            alt="powiększ"
+            title="powiększ"
+          />
+        </button>
+        <button class="gallery__zoom-out-btn">
+          <img
+            src="images/buttons/zoomout.svg"
+            alt="pomniejsz"
+            title="pomniejsz"
+          />
+        </button>
+        <button class="gallery__play-btn">
+          <img
+            src="images/buttons/play.svg"
+            alt="uruchom automatyczne obracanie"
+            title="uruchom automatyczne obracanie"
+          />
+        </button>
+        <button class="gallery__fullscreen-btn">
+          <img
+            src="images/buttons/fullscreenon.svg"
+            alt="pełny ekran"
+            title="włącz tryb pełnego ekranu"
+          />
+        </button>
+      </div>
     </div>
-    <div class="gallery__buttons">
-      <button id="left">
-        <img src="images/buttons/left.svg" alt="obróć w lewo" title="obróć w lewo" />
-      </button>
-      <button id="right">
-        <img src="images/buttons/right.svg" alt="obróć w prawo" title="obróć w prawo" />
-      </button>
-      <button id="up">
-        <img src="images/buttons/up.svg" alt="obróć do góry" title="obróć do góry" />
-      </button>
-      <button id="down">
-        <img src="images/buttons/down.svg" alt="obróć w dół" title="obróć w dół" />
-      </button>
-      <button id="zoomIn">
-        <img src="images/buttons/zoomin.svg" alt="powiększ" title="powiększ" />
-      </button>
-      <button id="zoomOut">
-        <img src="images/buttons/zoomout.svg" alt="pomniejsz" title="pomniejsz" />
-      </button>
-      <button id="play">
-        <img src="images/buttons/play.svg" alt="uruchom automatyczne obracanie"
-          title="uruchom automatyczne obracanie" />
-      </button>
-      <button id="fullscreen">
-        <img src="images/buttons/fullscreenon.svg" alt="pełny ekran" title="włącz tryb pełnego ekranu">
-      </button>
+    <div class="gallery" data-artwork="kubik-czarny">
+      <div class="gallery__img-wrapper">
+        <img class="gallery__img" />
+      </div>
+      <div class="gallery__buttons">
+        <button class="gallery__left-btn">
+          <img
+            src="images/buttons/left.svg"
+            alt="obróć w lewo"
+            title="obróć w lewo"
+          />
+        </button>
+        <button class="gallery__right-btn">
+          <img
+            src="images/buttons/right.svg"
+            alt="obróć w prawo"
+            title="obróć w prawo"
+          />
+        </button>
+        <button class="gallery__up-btn">
+          <img
+            src="images/buttons/up.svg"
+            alt="obróć do góry"
+            title="obróć do góry"
+          />
+        </button>
+        <button class="gallery__down-btn">
+          <img
+            src="images/buttons/down.svg"
+            alt="obróć w dół"
+            title="obróć w dół"
+          />
+        </button>
+        <button class="gallery__zoom-in-btn">
+          <img
+            src="images/buttons/zoomin.svg"
+            alt="powiększ"
+            title="powiększ"
+          />
+        </button>
+        <button class="gallery__zoom-out-btn">
+          <img
+            src="images/buttons/zoomout.svg"
+            alt="pomniejsz"
+            title="pomniejsz"
+          />
+        </button>
+        <button class="gallery__play-btn">
+          <img
+            src="images/buttons/play.svg"
+            alt="uruchom automatyczne obracanie"
+            title="uruchom automatyczne obracanie"
+          />
+        </button>
+        <button class="gallery__fullscreen-btn">
+          <img
+            src="images/buttons/fullscreenon.svg"
+            alt="pełny ekran"
+            title="włącz tryb pełnego ekranu"
+          />
+        </button>
+      </div>
     </div>
-  </div>
-</body>
-
+  </body>
 </html>
