@@ -146,13 +146,13 @@ galleries.forEach((gallery, artworkNumber) => {
 
   function rotateLeft() {
     currentIndex--;
-    if (currentIndex === 0) currentIndex = 29;
+    if (currentIndex === 0) currentIndex = imagesInRow[row - 1];
     changeImg();
   }
 
   function rotateRight() {
     currentIndex++;
-    if (currentIndex > 29) currentIndex = 1;
+    if (currentIndex > imagesInRow[row - 1]) currentIndex = 1;
     changeImg();
   }
 
