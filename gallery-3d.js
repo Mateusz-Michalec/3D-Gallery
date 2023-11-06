@@ -46,20 +46,22 @@ window.onload = function () {
 
     // Loading images
 
-    let loadedImages = 0;
+    let preloadedImages = [];
     const imagesToLoad = imagesInRows.reduce((prev, acc) => acc + prev);
 
     function getImage(imgNumber, rowNumber) {
       return new Promise((resolve) => {
-        const img = new Image();
+        const image = new Image();
 
-        img.src = `/obrotowe/${artwork}/${artwork}-row-0${rowNumber}_${
+        image.src = `/obrotowe/${artwork}/${artwork}-row-0${rowNumber}_${
           imgNumber < 10 ? "00" : "0"
         }${imgNumber}.jpg`;
 
-        img.onload = function () {
-          loadedImages++;
-          if (loadedImages === imagesToLoad) {
+        image.onload = function () {
+          preloadedImages.push(image.src);
+          if (preloadedImages.length === 1) img.src = preloadedImages[0];
+          if (preloadedImages.length === imagesToLoad) {
+            console.log(preloadedImages);
             imgWrapper.removeChild(loader);
             gallery.classList.remove("gallery-3d--loading");
           }
@@ -144,14 +146,16 @@ window.onload = function () {
     let currentRow = 1;
 
     function changeImg() {
-      img.src = `/obrotowe/${artwork}${
-        highImageQuality ? "/highres" : ""
-      }/${artwork}-row-0${currentRow}_${
-        currentIndex < 10 ? "00" : "0"
-      }${currentIndex}.jpg`;
+      img.src = preloadedImages[currentIndex];
     }
 
-    changeImg();
+    // (function loadFirstImg() {
+    //   img.src = `/obrotowe/${artwork}${
+    //     highImageQuality ? "/highres" : ""
+    //   }/${artwork}-row-0${currentRow}_${
+    //     currentIndex < 10 ? "00" : "0"
+    //   }${currentIndex}.jpg`;
+    // })();
 
     function rotateLeft() {
       currentIndex--;
