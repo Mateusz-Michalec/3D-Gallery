@@ -1,8 +1,8 @@
-function createGalleryBtn(iconSrc, iconAlt) {
+function createGalleryBtn(iconName, iconAlt) {
   const btn = document.createElement("button");
-  const icon = document.createElement("img");
+  const icon = new Image();
 
-  icon.src = iconSrc;
+  icon.src = `./buttons/${iconName}.svg`;
   icon.alt = iconAlt;
   icon.title = iconAlt;
 
@@ -31,6 +31,7 @@ window.onload = function () {
     imgWrapper.appendChild(loader);
 
     const img = document.createElement("img");
+    img.setAttribute("alt", artworkDesc);
     img.classList.add("gallery-3d__img");
 
     imgWrapper.appendChild(img);
@@ -54,10 +55,68 @@ window.onload = function () {
     }
 
     function setCurrentImages() {
-      currentImages = preloadedImages.filter((image) =>
-        image.currentSrc.includes(`row-0${currentRow}`)
+      currentImages = preloadedImages.filter((img) =>
+        img.currentSrc.includes(`row-0${currentRow}`)
       );
+      currentImages.sort((imageA, imageB) => {
+        const srcA = imageA.currentSrc;
+        const srcB = imageB.currentSrc;
+        return srcA.localeCompare(srcB);
+      });
     }
+
+    // Loading images
+
+    function sumImagesByRows() {
+      let sum = 0;
+      return imagesInRows.map((value) => (sum += value));
+    }
+
+    let preloadedImages = [];
+    const imagesToLoad = sumImagesByRows();
+    let loadedRow = 0;
+
+    function getImage(imgNumber, rowNumber) {
+      return new Promise((resolve) => {
+        const image = new Image();
+
+        image.src = `./obrotowe/${artwork}/${artwork}-row-0${rowNumber}_${
+          imgNumber < 10 ? "00" : "0"
+        }${imgNumber}.jpg`;
+
+        image.onload = function () {
+          preloadedImages.push(image);
+          if (preloadedImages.length === 1)
+            img.src = preloadedImages[0].currentSrc;
+
+          for (let i = 0; i < imagesToLoad.length; i++) {
+            if (
+              preloadedImages.length === imagesToLoad[i] &&
+              gallery.classList.contains("gallery-3d--loading")
+            ) {
+              loadedRow++;
+              imgWrapper.removeChild(loader);
+              gallery.classList.remove("gallery-3d--loading");
+              setCurrentImages();
+              changeImg();
+            }
+          }
+
+          resolve();
+        };
+      });
+    }
+
+    async function loadImages() {
+      const promises = [];
+
+      for (let i = 1; i <= imagesInRows[currentRow - 1]; i++)
+        promises.push(getImage(i, loadedRow + 1));
+
+      await Promise.all(promises);
+    }
+
+    loadImages();
 
     function rotateLeft() {
       currentIndex--;
@@ -75,8 +134,15 @@ window.onload = function () {
     function rotateUp() {
       if (currentRow < imagesInRows.length) {
         currentRow++;
-        setCurrentImages();
-        changeImg();
+
+        if (preloadedImages.length !== imagesToLoad[imagesToLoad.length - 1]) {
+          imgWrapper.append(loader);
+          gallery.classList.add("gallery-3d--loading");
+          loadImages();
+        } else {
+          setCurrentImages();
+          changeImg();
+        }
       } else return;
     }
 
@@ -88,93 +154,26 @@ window.onload = function () {
       } else return;
     }
 
-    // Loading images
-
-    let preloadedImages = [];
-    const imagesToLoad = imagesInRows.reduce((prev, acc) => acc + prev);
-    let loadedImages = 0;
-
-    function getImage(imgNumber, rowNumber) {
-      return new Promise((resolve) => {
-        const image = new Image();
-
-        image.src = `./obrotowe/${artwork}/${artwork}-row-0${rowNumber}_${
-          imgNumber < 10 ? "00" : "0"
-        }${imgNumber}.jpg`;
-
-        image.onload = function () {
-          preloadedImages.push(image);
-          loadedImages++;
-          if (preloadedImages.length === 1)
-            img.src = preloadedImages[0].currentSrc;
-          if (imagesToLoad === loadedImages) {
-            preloadedImages.sort((imageA, imageB) => {
-              const srcA = imageA.currentSrc;
-              const srcB = imageB.currentSrc;
-
-              return srcA.localeCompare(srcB);
-            });
-            setCurrentImages();
-            imgWrapper.removeChild(loader);
-            gallery.classList.remove("gallery-3d--loading");
-          }
-          resolve();
-        };
-      });
-    }
-
-    function getIcon(iconName) {
-      return new Promise((resolve) => {
-        const icon = new Image();
-        icon.src = `./buttons/${iconName}.svg`;
-        icon.onload = function () {
-          resolve();
-        };
-      });
-    }
-
-    (async function loadImages() {
-      const promises = [];
-      let row = 1;
-
-      promises.push(getIcon("pause"));
-      promises.push(getIcon("fullscreenoff"));
-
-      for (let i = 1; i <= imagesInRows[row - 1]; i++) {
-        promises.push(getImage(i, row));
-
-        if (i === imagesInRows[row - 1] && imagesInRows[row]) {
-          row++;
-          i = 0;
-        }
-      }
-
-      await Promise.all(promises);
-    })();
-
     // Gallery buttons
     const buttonsWrapper = document.createElement("div");
     buttonsWrapper.classList.add("gallery-3d__buttons");
 
-    const rotateLeftBtn = createGalleryBtn("buttons/left.svg", "obróć w lewo");
-    const rotateRightBtn = createGalleryBtn(
-      "buttons/right.svg",
-      "obróć w prawo"
-    );
-    const rotateUpBtn = createGalleryBtn("buttons/up.svg", "obróć do góry");
-    const rotateDownBtn = createGalleryBtn("buttons/down.svg", "obróć w dół");
-    const zoomInBtn = createGalleryBtn("buttons/zoomin.svg", "powiększ");
-    const zoomOutBtn = createGalleryBtn("buttons/zoomout.svg", "pomniejsz");
+    const rotateLeftBtn = createGalleryBtn("left", "obróć w lewo");
+    const rotateRightBtn = createGalleryBtn("right", "obróć w prawo");
+    const rotateUpBtn = createGalleryBtn("up", "obróć do góry");
+    const rotateDownBtn = createGalleryBtn("down", "obróć w dół");
+    const zoomInBtn = createGalleryBtn("zoomin", "powiększ");
+    const zoomOutBtn = createGalleryBtn("zoomout", "pomniejsz");
     const playAnimationBtn = createGalleryBtn(
-      "buttons/play.svg",
+      "play",
       "uruchom automatyczne obracanie"
     );
     const fullscreenBtn = createGalleryBtn(
-      "buttons/fullscreenon.svg",
+      "fullscreenon",
       "uruchom w pełnym ekranie"
     );
     const closeFullscreenBtn = createGalleryBtn(
-      "buttons/fullscreenoff.svg",
+      "fullscreenoff",
       "zamknij pełny ekran"
     );
 
@@ -215,7 +214,7 @@ window.onload = function () {
 
     function startPlaying() {
       isPlaying = true;
-      playIcon.src = "buttons/pause.svg";
+      playIcon.src = "./buttons/pause.svg";
       playIcon.title = "zatrzymaj automatyczne obracanie";
       intervalId = setInterval(() => {
         rotateRight();
@@ -224,7 +223,7 @@ window.onload = function () {
 
     function stopPlaying() {
       isPlaying = false;
-      playIcon.src = "buttons/play.svg";
+      playIcon.src = "./buttons/play.svg";
       playIcon.title = "uruchom automatyczne obracanie";
       clearInterval(intervalId);
     }
