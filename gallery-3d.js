@@ -45,6 +45,12 @@ window.onload = function () {
     desc.textContent = `${artworkNumber + 1}. ${artworkDesc}`;
     gallery.appendChild(desc);
 
+    // hr
+
+    const hr = document.createElement("hr");
+    hr.classList.add("gallery-3d__hr");
+    gallery.appendChild(hr);
+
     // user actions variables
     let currentIndex = 0;
     let currentRow = 1;
