@@ -44,24 +44,77 @@ window.onload = function () {
     desc.textContent = `${artworkNumber + 1}. ${artworkDesc}`;
     gallery.appendChild(desc);
 
+    // user actions variables
+    let currentIndex = 0;
+    let currentRow = 1;
+    let currentImages = [];
+
+    function changeImg() {
+      img.src = currentImages[currentIndex].currentSrc;
+    }
+
+    function setCurrentImages() {
+      currentImages = preloadedImages.filter((image) =>
+        image.currentSrc.includes(`row-0${currentRow}`)
+      );
+    }
+
+    function rotateLeft() {
+      currentIndex--;
+      if (currentIndex < 0) currentIndex = imagesInRows[currentRow - 1] - 1;
+
+      changeImg();
+    }
+
+    function rotateRight() {
+      currentIndex++;
+      if (currentIndex === imagesInRows[currentRow - 1]) currentIndex = 0;
+      changeImg();
+    }
+
+    function rotateUp() {
+      if (currentRow < imagesInRows.length) {
+        currentRow++;
+        setCurrentImages();
+        changeImg();
+      } else return;
+    }
+
+    function rotateDown() {
+      if (currentRow > 1) {
+        currentRow--;
+        setCurrentImages();
+        changeImg();
+      } else return;
+    }
+
     // Loading images
 
     let preloadedImages = [];
     const imagesToLoad = imagesInRows.reduce((prev, acc) => acc + prev);
+    let loadedImages = 0;
 
     function getImage(imgNumber, rowNumber) {
       return new Promise((resolve) => {
         const image = new Image();
 
-        image.src = `/obrotowe/${artwork}/${artwork}-row-0${rowNumber}_${
+        image.src = `./obrotowe/${artwork}/${artwork}-row-0${rowNumber}_${
           imgNumber < 10 ? "00" : "0"
         }${imgNumber}.jpg`;
 
         image.onload = function () {
-          preloadedImages.push(image.src);
-          if (preloadedImages.length === 1) img.src = preloadedImages[0];
-          if (preloadedImages.length === imagesToLoad) {
-            console.log(preloadedImages);
+          preloadedImages.push(image);
+          loadedImages++;
+          if (preloadedImages.length === 1)
+            img.src = preloadedImages[0].currentSrc;
+          if (imagesToLoad === loadedImages) {
+            preloadedImages.sort((imageA, imageB) => {
+              const srcA = imageA.currentSrc;
+              const srcB = imageB.currentSrc;
+
+              return srcA.localeCompare(srcB);
+            });
+            setCurrentImages();
             imgWrapper.removeChild(loader);
             gallery.classList.remove("gallery-3d--loading");
           }
@@ -70,9 +123,22 @@ window.onload = function () {
       });
     }
 
+    function getIcon(iconName) {
+      return new Promise((resolve) => {
+        const icon = new Image();
+        icon.src = `./buttons/${iconName}.svg`;
+        icon.onload = function () {
+          resolve();
+        };
+      });
+    }
+
     (async function loadImages() {
       const promises = [];
       let row = 1;
+
+      promises.push(getIcon("pause"));
+      promises.push(getIcon("fullscreenoff"));
 
       for (let i = 1; i <= imagesInRows[row - 1]; i++) {
         promises.push(getImage(i, row));
@@ -140,48 +206,6 @@ window.onload = function () {
     // rotation limiter
     const THRESHOLD_DISTANCE = 10;
     let xChange = 0; // when it is below zero, the user dragged to the left
-
-    // user actions variables
-    let currentIndex = 1;
-    let currentRow = 1;
-
-    function changeImg() {
-      img.src = preloadedImages[currentIndex];
-    }
-
-    // (function loadFirstImg() {
-    //   img.src = `/obrotowe/${artwork}${
-    //     highImageQuality ? "/highres" : ""
-    //   }/${artwork}-row-0${currentRow}_${
-    //     currentIndex < 10 ? "00" : "0"
-    //   }${currentIndex}.jpg`;
-    // })();
-
-    function rotateLeft() {
-      currentIndex--;
-      if (currentIndex === 0) currentIndex = imagesInRows[currentRow - 1];
-      changeImg();
-    }
-
-    function rotateRight() {
-      currentIndex++;
-      if (currentIndex > imagesInRows[currentRow - 1]) currentIndex = 1;
-      changeImg();
-    }
-
-    function rotateUp() {
-      if (currentRow < imagesInRows.length) {
-        currentRow++;
-        changeImg();
-      } else return;
-    }
-
-    function rotateDown() {
-      if (currentRow > 1) {
-        currentRow--;
-        changeImg();
-      } else return;
-    }
 
     // play action variables
     let isPlaying = false;
