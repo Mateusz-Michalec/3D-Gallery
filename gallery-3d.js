@@ -17,18 +17,19 @@ window.onload = function () {
   galleries.forEach((gallery, artworkNumber) => {
     const artwork = gallery.getAttribute("data-artwork");
     const artworkDesc = gallery.getAttribute("data-artwork-desc");
-    const rows = gallery.getAttribute("data-rows").split(",");
-    const imagesInRows = rows.map((row) => +row); // [30,30,30] for instance 3 rows with 30 images in each row
+    const imagesInRows = gallery
+      .getAttribute("data-rows")
+      .split(",")
+      .map((row) => +row); // [30,30,30] for instance 3 rows with 30 images in each row
 
     // Img and image wrapper
-    gallery.classList.add("gallery-3d", "gallery-3d--loading");
+    gallery.classList.add("gallery-3d");
 
     const imgWrapper = document.createElement("div");
     imgWrapper.classList.add("gallery-3d__img-wrapper");
 
     const loader = document.createElement("div");
     loader.classList.add("gallery-3d__loader");
-    imgWrapper.appendChild(loader);
 
     const img = document.createElement("img");
     img.setAttribute("alt", artworkDesc);
@@ -51,83 +52,103 @@ window.onload = function () {
     hr.classList.add("gallery-3d__hr");
     gallery.appendChild(hr);
 
+    //fullscreen variable
+    let isFullScreen = false;
+
     // user actions variables
     let currentIndex = 0;
     let currentRow = 1;
+
+    // Loading images
+
+    let loadedImages = [];
     let currentImages = [];
+
+    let currentLoaded;
+    let currentToLoad;
+    let loadedRows = [];
+
+    console.log("images in each rows:", imagesInRows);
 
     function changeImg() {
       img.src = currentImages[currentIndex].currentSrc;
     }
 
     function setCurrentImages() {
-      currentImages = preloadedImages.filter((img) =>
+      currentImages = loadedImages.filter((img) =>
         img.currentSrc.includes(`row-0${currentRow}`)
       );
-      currentImages.sort((imageA, imageB) => {
-        const srcA = imageA.currentSrc;
-        const srcB = imageB.currentSrc;
-        return srcA.localeCompare(srcB);
-      });
+      changeImg();
     }
 
-    // Loading images
-
-    function sumImagesByRows() {
-      let sum = 0;
-      return imagesInRows.map((value) => (sum += value));
+    function isRowLoaded(type) {
+      return loadedRows.some((row) =>
+        row.includes(`row-0${currentRow}_${type}`)
+      );
     }
 
-    let preloadedImages = [];
-    const imagesToLoad = sumImagesByRows();
-    let loadedRow = 0;
-
-    function getImage(imgNumber, rowNumber) {
+    function getImage(imgNumber, type) {
       return new Promise((resolve) => {
         const image = new Image();
 
-        image.src = `./obrotowe/${artwork}/${artwork}-row-0${rowNumber}_${
+        image.src = `./obrotowe/${artwork}/${
+          type === "highres" ? "highres/" : ""
+        }${artwork}-row-0${currentRow}_${
           imgNumber < 10 ? "00" : "0"
         }${imgNumber}.jpg`;
 
         image.onload = function () {
-          preloadedImages.push(image);
-          if (preloadedImages.length === 1)
-            img.src = preloadedImages[0].currentSrc;
+          loadedImages.push(image);
+          currentLoaded++;
 
-          for (let i = 0; i < imagesToLoad.length; i++) {
-            if (
-              preloadedImages.length === imagesToLoad[i] &&
-              gallery.classList.contains("gallery-3d--loading")
-            ) {
-              loadedRow++;
-              imgWrapper.removeChild(loader);
-              gallery.classList.remove("gallery-3d--loading");
-              setCurrentImages();
-              changeImg();
-            }
+          if (loadedImages.length === 1) img.src = loadedImages[0].currentSrc;
+          if (currentLoaded === currentToLoad) {
+            console.log("loaded images:", loadedImages);
+            console.log("loaded rows:", loadedRows);
+
+            loadedRows.push(`row-0${currentRow}_${type}`);
+
+            loadedImages.sort((imageA, imageB) => {
+              const srcA = imageA.currentSrc;
+              const srcB = imageB.currentSrc;
+              return srcA.localeCompare(srcB);
+            });
+
+            setCurrentImages();
+
+            imgWrapper.removeChild(loader);
+            gallery.classList.remove("gallery-3d--loading");
           }
-
           resolve();
         };
       });
     }
 
-    async function loadImages() {
+    async function loadImages(type) {
+      imgWrapper.appendChild(loader);
+      gallery.classList.add("gallery-3d--loading");
+
       const promises = [];
 
-      for (let i = 1; i <= imagesInRows[currentRow - 1]; i++)
-        promises.push(getImage(i, loadedRow + 1));
+      currentToLoad = imagesInRows[currentRow - 1];
+      currentLoaded = 0;
+
+      for (let i = 1; i <= currentToLoad; i++) promises.push(getImage(i, type));
 
       await Promise.all(promises);
     }
 
-    loadImages();
+    loadImages("lowres"); // Load lowres on startup
+
+    // rotation limiter
+    const THRESHOLD_DISTANCE = 10;
+    let xChange = 0; // when it is below zero, the user dragged to the left
+
+    // Rotations
 
     function rotateLeft() {
       currentIndex--;
       if (currentIndex < 0) currentIndex = imagesInRows[currentRow - 1] - 1;
-
       changeImg();
     }
 
@@ -141,23 +162,20 @@ window.onload = function () {
       if (currentRow < imagesInRows.length) {
         currentRow++;
 
-        if (preloadedImages.length !== imagesToLoad[imagesToLoad.length - 1]) {
-          imgWrapper.append(loader);
-          gallery.classList.add("gallery-3d--loading");
-          loadImages();
-        } else {
-          setCurrentImages();
-          changeImg();
-        }
-      } else return;
+        if (isZooming && !isRowLoaded("highres")) loadImages("highres");
+        else if (!isRowLoaded("highres") && !isRowLoaded("lowres"))
+          loadImages("lowres");
+        else setCurrentImages();
+      }
     }
 
     function rotateDown() {
       if (currentRow > 1) {
         currentRow--;
-        setCurrentImages();
-        changeImg();
-      } else return;
+
+        if (isZooming && !isRowLoaded("highres")) loadImages("highres");
+        else setCurrentImages();
+      }
     }
 
     // Gallery buttons
@@ -203,14 +221,6 @@ window.onload = function () {
 
     const playIcon = playAnimationBtn.querySelector("img");
     const fullScreenIcon = fullscreenBtn.querySelector("img");
-
-    //fullscreen variables
-    let isFullScreen = false;
-    let highImageQuality = false;
-
-    // rotation limiter
-    const THRESHOLD_DISTANCE = 10;
-    let xChange = 0; // when it is below zero, the user dragged to the left
 
     // play action variables
     let isPlaying = false;
@@ -340,16 +350,12 @@ window.onload = function () {
         imgWrapper.addEventListener("touchend", updateImgPosition);
         scaleImage();
         setMobileZoomCords();
-      } else if (isZooming && zoomValue < 5) {
+
+        if (!isRowLoaded("highres")) loadImages("highres");
+      } else if (zoomValue < 4) {
         zoomValue += 0.5;
-        if (zoomValue > 1.5) {
-          highImageQuality = true;
-        } else {
-          highImageQuality = false;
-        }
         scaleImage();
         setMobileZoomCords();
-        changeImg();
       }
     }
 
@@ -358,9 +364,6 @@ window.onload = function () {
         isZooming = false;
         img.style.transform = "none";
         zoomValue = 1.5;
-        if (!isFullScreen) {
-          highImageQuality = false;
-        }
         imgWrapper.removeEventListener("mousemove", zooming);
         imgWrapper.removeEventListener("mouseleave", centerImage);
 
@@ -368,7 +371,6 @@ window.onload = function () {
         imgWrapper.removeEventListener("touchstart", getInitTouchCords);
         imgWrapper.removeEventListener("touchmove", mobileZooming);
         imgWrapper.removeEventListener("touchend", updateImgPosition);
-        // changeImg()
       }
     }
 
@@ -445,11 +447,13 @@ window.onload = function () {
     function updateUI() {
       if (!isFullScreen) {
         desc.style.display = "none";
+        hr.style.display = "none";
         fullscreenBtn.style.display = "none";
         closeFullscreenBtn.style.display = "block";
         highImageQuality = true;
       } else {
         desc.style.display = "block";
+        hr.style.display = "block";
         fullscreenBtn.style.display = "block";
         closeFullscreenBtn.style.display = "none";
         highImageQuality = false;
@@ -461,7 +465,6 @@ window.onload = function () {
       fullScreenIcon.title = `${
         isFullScreen ? "wyłącz" : "włącz"
       } tryb pełnego ekranu`;
-      changeImg();
     }
 
     document.addEventListener("fullscreenchange", updateUI);
