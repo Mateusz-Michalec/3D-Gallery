@@ -171,7 +171,7 @@ window.onload = function () {
     function rotateDown() {
       if (currentRow > 1) {
         currentRow--;
-        if (isZooming || (isFullScreen && !isRowLoaded("highres")))
+        if ((isZooming || isFullScreen) && !isRowLoaded("highres"))
           loadImages("highres");
         else setCurrentImages();
       }
