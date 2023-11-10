@@ -160,8 +160,8 @@ window.onload = function () {
     function rotateUp() {
       if (currentRow < imagesInRows.length) {
         currentRow++;
-        if (isZooming && !isRowLoaded("highres")) loadImages("highres");
-        else if (isFullScreen && !isRowLoaded("highres")) loadImages("highres");
+        if ((isZooming || isFullScreen) && !isRowLoaded("highres"))
+          loadImages("highres");
         else if (!isRowLoaded("highres") && !isRowLoaded("lowres"))
           loadImages("lowres");
         else setCurrentImages();
