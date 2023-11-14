@@ -24,6 +24,12 @@ body {
   width: 100%;
 }
 
+.gallery-3d_img-wrapper--fullscreen {
+  position: fixed;
+  top: 50%;
+  transform: translate(0, -50%);
+}
+
 .gallery-3d--loading {
   animation: glow 1s ease-in-out infinite alternate-reverse;
   pointer-events: none;
@@ -111,7 +117,7 @@ button {
   }
 }
 
-@media (min-width:576px) {
+@media (min-width: 576px) {
   .gallery-3d {
     width: 500px;
   }

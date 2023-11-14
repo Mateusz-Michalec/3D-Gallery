@@ -438,11 +438,18 @@ window.onload = function () {
     });
 
     function toggleFullscreen() {
+      if (!isRowLoaded("highres")) loadImages("highres");
       if (!document.fullscreenElement) {
-        gallery.requestFullscreen().catch((err) => {
-          alert(`Nie można przejść w tryb pełnoekranowy: ${err.message}`);
-        });
+        gallery
+          .requestFullscreen()
+          .then(() => {
+            imgWrapper.classList.add("gallery-3d_img-wrapper--fullscreen");
+          })
+          .catch((err) => {
+            alert(`Nie można przejść w tryb pełnoekranowy: ${err.message}`);
+          });
       } else {
+        imgWrapper.classList.remove("gallery-3d_img-wrapper--fullscreen");
         document.exitFullscreen();
       }
     }
@@ -454,6 +461,7 @@ window.onload = function () {
         fullscreenBtn.style.display = "none";
         closeFullscreenBtn.style.display = "block";
       } else {
+        imgWrapper.classList.remove("gallery-3d_img-wrapper--fullscreen");
         desc.style.display = "block";
         hr.style.display = "block";
         fullscreenBtn.style.display = "block";
@@ -466,7 +474,6 @@ window.onload = function () {
       fullScreenIcon.title = `${
         isFullScreen ? "wyłącz" : "włącz"
       } tryb pełnego ekranu`;
-      if (!isRowLoaded("highres")) loadImages("highres");
     }
 
     document.addEventListener("fullscreenchange", updateUI);
